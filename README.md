@@ -1,6 +1,6 @@
 ﻿# Welcome to Ecommerce Backend!
 
-Hi! I'm **Rahul Singh Dhakakd**. this is Backend of the Ecommerce site
+Hi! I'm **Rahul Singh Dhakad**. this is Backend of the Ecommerce site
 
 ## Install Dependencies
 
