@@ -259,7 +259,7 @@ export const getPieCharts = TryCatch(
                 customer: customerUsers,
             }
 
-            const charts = {
+            charts = {
                 status,
                 categoryCount,
                 stockAvailability,
@@ -267,6 +267,7 @@ export const getPieCharts = TryCatch(
                 userAgeGroup,
                 AdminCustomer,
             }
+
             myCache.set(key, JSON.stringify(charts));
         }
 
