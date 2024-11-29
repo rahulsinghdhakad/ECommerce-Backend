@@ -18,7 +18,6 @@ config({
     path:"./.env"
 })
 
-
 const port = process.env.PORT || 4000;
 
 const mongoURI = process.env.MONGO_URI || "";

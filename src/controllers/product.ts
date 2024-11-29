@@ -1,15 +1,19 @@
 import { Request } from "express";
-import { TryCatch } from "../middlewares/error.js";
-import { AllProductRequestQuery, BaseQueryType, NewProductRequestBody } from "../types/types.js";
-import { Product } from "../models/product.js";
-import multer from "multer";
-import ErrorHandler from "../utils/utility-classes.js";
 import { rm } from "fs";
 import { myCache } from "../app.js";
-import { json } from "stream/consumers";
+import { TryCatch } from "../middlewares/error.js";
+import { Product } from "../models/product.js";
+import { AllProductRequestQuery, BaseQueryType, NewProductRequestBody } from "../types/types.js";
 import { invalidateCache } from "../utils/feature.js";
+import ErrorHandler from "../utils/utility-classes.js";
 // import { faker } from "@faker-js/faker"
+import { v2 as cloudinary } from "cloudinary";
 
+cloudinary.config({
+    cloud_name:'dei5wfrje',
+    api_key:process.env.COUDINARY_API_KEY,
+    api_secret:process.env.COUDINARY_API_SECRET,
+})
 
 // revalidate on New,Update,Delete Product and New Order
 export const getLatestProduct = TryCatch(
@@ -142,6 +146,12 @@ export const getSingleProduct = TryCatch(
 
 export const newProduct = TryCatch(
     async (req: Request<{}, {}, NewProductRequestBody>, res, next) => {
+        cloudinary.config({
+            cloud_name:'dei5wfrje',
+            api_key:process.env.COUDINARY_API_KEY,
+            api_secret:process.env.COUDINARY_API_SECRET,
+        })
+        
         const { name, category, price, stock } = req.body;
 
         const photo = req.file;
@@ -155,13 +165,14 @@ export const newProduct = TryCatch(
 
             return next(new ErrorHandler("add all field", 400));
         }
-
+        
+        const result=await cloudinary.uploader.upload(photo.path);
         await Product.create({
             name,
             category: category.toLowerCase(),
             price,
             stock,
-            photo: photo.path,
+            photo: result.url,
         });
 
         invalidateCache({product:true, admin:true});
@@ -186,10 +197,11 @@ export const updateProduct = TryCatch(
         const photo = req.file;
 
         if (photo) {
+            const result=await cloudinary.uploader.upload(photo.path);
             rm(product.photo, () => {
                 console.log("photo deleted successfully");
             })
-            product.photo = photo.path;
+            product.photo = result.url;
         };
 
         if (name) product.name = name;
